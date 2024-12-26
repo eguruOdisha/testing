@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #007bff;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        .chat-messages {
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .chat-input button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">Chatbot AI</div>
+        <div class="chat-messages" id="messages"></div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your question...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = "https://script.google.com/macros/s/AKfycbyLMFW8tcFamKVhN53ZpDAaPLE5yF5GOkQSi4y6hq7sGugAJ5OQkwNNgigayB5YBcWteQ/exec"; // Replace with your Apps Script Web App URL
+        const messagesDiv = document.getElementById("messages");
+
+        function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (!userInput) return;
+
+            addMessage("You", userInput);
+            document.getElementById("user-input").value = "";
+
+            fetch(apiUrl)
+                .then((response) => response.json())
+                .then((data) => {
+                    const story = data.content;
+                    const answer = generateResponse(story, userInput);
+                    typeWriter("Bot", answer);
+                });
+        }
+
+        function addMessage(sender, message) {
+            const messageElement = document.createElement("div");
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function typeWriter(sender, text) {
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < text.length) {
+                    addMessage(sender, text.slice(0, ++index));
+                } else {
+                    clearInterval(interval);
+                }
+            }, 50);
+        }
+
+        function generateResponse(story, userInput) {
+            // Basic response logic based on the story
+            return story.includes(userInput)
+                ? `Here's something about "${userInput}": ${story}`
+                : "Sorry, I couldn't find anything related to that.";
+        }
+    </script>
+</body>
+</html>
